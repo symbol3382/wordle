@@ -1,6 +1,15 @@
 import * as React from 'react';
 import {useEffect, useState} from 'react';
-import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide} from "@mui/material";
+import {
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Grid,
+    Slide,
+    Typography
+} from "@mui/material";
 import Button from "@mui/material/Button";
 import wordService from "../../services/wordService";
 
@@ -59,13 +68,19 @@ const contents = {
 }
 
 const AskContinueOrReset = props => {
+    const {ask} = props;
+
     const [open, setOpen] = useState(false);
     const [gameStatus, setGameStatus] = useState(GAME_STATUS.inGame);
+    const [answer, setAnswer] = useState(null);
 
     useEffect(() => {
         refreshGameStatus();
-        setOpen(props.ask && props.submittedWords.length);
-    }, [props.ask])
+        setOpen(ask);
+        let answerSubmit = props.submittedWords.find(submit => submit.match);
+        setAnswer(answerSubmit ? answerSubmit.word : null);
+
+    }, [ask])
 
     /**
      * -----------------------------------------------------------------------------------------------------------------
@@ -120,10 +135,22 @@ const AskContinueOrReset = props => {
             <DialogContent>
                 <DialogContentText id="alert-dialog-slide-description">
                     {contents[gameStatus]}
+                    {gameStatus === GAME_STATUS.win && answer &&
+                        <>
+                            <br/>
+                            Your answer is
+                            <Grid container justifyContent={"center"} alignItems={"center"}>
+                                <Typography content={"h1"} sx={{fontSize: "3rem"}}>
+                                    {answer}
+                                </Typography>
+                            </Grid>
+                        </>
+                    }
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
                 {gameStatus === GAME_STATUS.inGame && <Button onClick={handleClose}>Continue</Button>}
+                {gameStatus === GAME_STATUS.win && <Button onClick={handleClose}>Close</Button>}
                 <Button onClick={resetGame}>Reset</Button>
             </DialogActions>
         </Dialog>

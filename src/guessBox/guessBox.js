@@ -1,11 +1,25 @@
 import React, {useEffect, useState} from "react";
 import GuessRow from "./guessRow/guessRow";
-import {Card, CardContent, Grid} from "@mui/material";
+import {Alert, Card, CardActions, CardContent, Grid, Slide, Snackbar} from "@mui/material";
 import './guessBox.css';
 import SubmittedRow from "./submittedRow/submittedRow";
 import moment from "moment";
 import AskContinueOrReset from "./askContinueOrReset/askContinueOrReset";
 import wordService from "../services/wordService";
+import Button from "@mui/material/Button";
+
+/**
+ * ---------------------------------------------------------------------------------------------------------------------
+ * @description To provide the sliding effect to alert component
+ * ---------------------------------------------------------------------------------------------------------------------
+ *
+ * @param props
+ * @returns {JSX.Element}
+ * @constructor
+ */
+function SlideTransition(props) {
+    return <Slide {...props} direction="up"/>;
+}
 
 const GuessBox = props => {
 
@@ -14,6 +28,7 @@ const GuessBox = props => {
     let [wordLength, setWordLength] = useState(5);
     const [submittedWords, setSubmittedWords] = useState([]);
     const [askContinueOrReset, setAskContinueOrReset] = useState(false);
+    const [isWon, setIsWon] = useState(false);
 
     useEffect(() => {
         let localStWords = localStorage.getItem('submittedWords');
@@ -31,9 +46,12 @@ const GuessBox = props => {
     }, [])
 
     useEffect(() => {
-        setCurrentGuessRowNumber(submittedWords.length);
         if (wordService.checkWin(submittedWords)) {
-            setAskContinueOrReset(true);
+            // after winning user should not be able to input in any box
+            setCurrentGuessRowNumber(-1);
+            setIsWon(true);
+        } else {
+            setCurrentGuessRowNumber(submittedWords.length);
         }
     }, [submittedWords])
 
@@ -55,6 +73,9 @@ const GuessBox = props => {
                 submittedWords: newSubmits,
             })
         )
+        if (value.match) {
+            setIsWon(true);
+        }
     }
 
 
@@ -68,31 +89,37 @@ const GuessBox = props => {
      */
     const handleAskSubmit = (options) => {
         if (options.reset) {
-            localStorage.removeItem('submittedWords');
-            setSubmittedWords([]);
+            reset();
         }
         setAskContinueOrReset(false);
     }
 
     /**
      * -----------------------------------------------------------------------------------------------------------------
-     * @description To handle when the user submit a word and a sucessfull response is returned from API
-     * if user has won the round then it will trigger the dialog box opening
+     * @description To reset the game and make the board clean
      * -----------------------------------------------------------------------------------------------------------------
-     *
-     * @param options
      */
-    const handleWordSubmit = (options) => {
-        if (options.win) {
-            setAskContinueOrReset(true);
-        }
+    const reset = () => {
+        localStorage.removeItem('submittedWords');
+        setSubmittedWords([]);
+        setIsWon(false);
     }
 
     return (
         <>
+            <Snackbar
+                open={isWon}
+                anchorOrigin={{vertical: "top", horizontal: "center"}}
+                autoHideDuration={1500}
+                TransitionComponent={SlideTransition}
+            >
+                <Alert severity="success" sx={{width: '100%'}}>
+                    Congratulations You've Won
+                </Alert>
+            </Snackbar>
 
             <AskContinueOrReset
-                ask={askContinueOrReset && submittedWords.length}
+                ask={askContinueOrReset}
                 onClose={handleAskSubmit}
                 submittedWords={submittedWords}
                 attemptsCount={attemptsCount}
@@ -105,20 +132,31 @@ const GuessBox = props => {
                 sx={{height: "100vh"}}
             >
                 <Grid item>
-                    <Card>
+                    <Card sx={{paddingBottom: 2}}>
                         <CardContent>
                             {Array.from(Array(attemptsCount).keys()).map(guessRowNumber => {
                                 return submittedWords[guessRowNumber]
                                     ? <SubmittedRow submittedWords={submittedWords[guessRowNumber]}/>
                                     : <GuessRow
-                                        disableInput={guessRowNumber !== currentGuessRowNumber}
+                                        disableInput={isWon || guessRowNumber !== currentGuessRowNumber}
                                         key={Math.random()}
-                                        onSubmit={handleWordSubmit}
                                         submitGuess={(value) => submitGuess(guessRowNumber, value)}
                                         wordLength={wordLength}
                                     />
                             })}
                         </CardContent>
+                        {isWon && <CardActions>
+                            <Grid container justifyContent={"center"} alignItems={"center"}>
+                                <Grid item lg={12} md={12} sm={12} xs={12}>
+                                    <Button variant={"contained"}
+                                            onClick={reset}
+                                            sx={{width: '100%'}}
+                                            color={"success"}>
+                                        Reset
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </CardActions>}
                     </Card>
                 </Grid>
             </Grid>
