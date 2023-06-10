@@ -1,0 +1,8 @@
+.MuiOtpInput-TextField-1 {
+    background-color: green !important;
+}
+
+.MuiOtpInput-TextField {
+    background: green !important;
+    width: 200px !important;
+}
