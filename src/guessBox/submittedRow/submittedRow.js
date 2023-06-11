@@ -18,7 +18,7 @@ const boxBG = {
 }
 const SubmittedRow = props => {
     const {submittedWords} = props;
-    const {word, result} = submittedWords;
+    const {word, result} = submittedWords || {word: '', result: ''};
 
     return (
         <Grid container justifyContent={"space-between"} alignItems={"center"}

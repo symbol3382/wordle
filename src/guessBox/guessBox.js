@@ -11,7 +11,8 @@ import {
     MenuItem,
     Select,
     Slide,
-    Snackbar
+    Snackbar,
+    Zoom
 } from "@mui/material";
 import './guessBox.css';
 import SubmittedRow from "./submittedRow/submittedRow";
@@ -49,9 +50,14 @@ const GuessBox = props => {
         if (localStWords && JSON.parse(localStWords)) {
             localStWords = JSON.parse(localStWords);
             if (localStWords.submittedWords && localStWords.date === moment().format('L')) {
-                setSubmittedWords(localStWords.submittedWords);
-                setCurrentGuessRowNumber(localStWords.submittedWords.length)
-                setAskContinueOrReset(true);
+                if (localStWords.submittedWords.length && localStWords.submittedWords[0].word.length === wordLength) {
+                    setSubmittedWords(localStWords.submittedWords);
+                    setCurrentGuessRowNumber(localStWords.submittedWords.length)
+                    setAskContinueOrReset(true);
+                } else {
+                    alert(`word length not same ${wordLength} ${localStWords.submittedWords[0].word}`)
+
+                }
             } else {
                 localStorage.removeItem('submittedWords');
             }
@@ -186,16 +192,34 @@ const GuessBox = props => {
                     <Card>
                         <CardContent sx={{padding: "20px !important"}}>
                             {Array.from(Array(attemptsCount).keys()).map(guessRowNumber => {
-                                return submittedWords[guessRowNumber]
-                                    ?
-                                    <SubmittedRow submittedWords={submittedWords[guessRowNumber]} key={Math.random()}/>
-                                    : <GuessRow
-                                        key={guessRowNumber}
-                                        disableInput={isWon || guessRowNumber !== currentGuessRowNumber}
-                                        submitGuess={(value) => onSubmitGuess(guessRowNumber, value)}
-                                        wordLength={wordLength}
-                                        submitRef={submitRef}
-                                    />
+                                return <>
+                                    <Zoom in={submittedWords[guessRowNumber]}
+                                          className={submittedWords[guessRowNumber] ? "" : 'hidden'}
+
+                                        // orientation="vertical"
+                                        // sx={{display: submittedWords[guessRowNumber] ? "block" : "none"}}
+                                    >
+                                        <div>
+                                            <SubmittedRow submittedWords={submittedWords[guessRowNumber]}
+                                                          key={Math.random()}></SubmittedRow>
+                                        </div>
+
+                                    </Zoom>
+                                    <Zoom in={!submittedWords[guessRowNumber]}
+                                          className={!submittedWords[guessRowNumber] ? "" : 'hidden'}
+                                    >
+                                        <div>
+                                            <GuessRow
+                                                key={guessRowNumber}
+                                                disableInput={isWon || guessRowNumber !== currentGuessRowNumber}
+                                                submitGuess={(value) => onSubmitGuess(guessRowNumber, value)}
+                                                wordLength={wordLength}
+                                                submitRef={submitRef}
+                                            ></GuessRow>
+                                        </div>
+
+                                    </Zoom>
+                                </>
                             })}
                         </CardContent>
                         {(isWon || isOver) && <CardActions>
