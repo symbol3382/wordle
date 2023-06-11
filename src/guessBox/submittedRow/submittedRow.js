@@ -22,7 +22,7 @@ const SubmittedRow = props => {
 
     return (
         <Grid container justifyContent={"space-between"} alignItems={"center"}
-              sx={{marginTop: "16px", marginBottom: "16px"}}>
+              sx={{ gap: "5px", height: "60px"}}>
             {Array.from(word).map((character, index) => {
                 return <Grid
                     item
@@ -30,7 +30,8 @@ const SubmittedRow = props => {
                     justifyContent={"center"}
                     alignItems={"center"}
                     className={"charBox"}
-                    sx={{background: boxBG[result[index]]}}
+                    sx={{background: boxBG[result[index]], fontSize: "1.3rem", fontWeight: "bold"}}
+                    key={`submittedRow${index}`}
                 >
                     {character}
                 </Grid>

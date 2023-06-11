@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {MuiOtpInput} from "mui-one-time-password-input";
 import {Controller, useForm} from "react-hook-form";
-import {Box} from "@mui/material";
+import {Box, Grid} from "@mui/material";
 import Button from "@mui/material/Button";
 import './guessRow.module.css';
 import wordApi from "../../api/wordApi";
@@ -9,7 +9,7 @@ import AlertContainer from "../../components/alert/alert";
 import errorHandlingService from "../../services/errorHandlingService";
 
 const GuessRow = props => {
-    const {disableInput, wordLength} = props;
+    const {disableInput, wordLength, submitRef} = props;
     const [text, setText] = useState('');
     const [errors, setErrors] = useState([]);
 
@@ -64,7 +64,8 @@ const GuessRow = props => {
     }
 
     return <>
-
+        <Grid container justifyContent={"space-between"} alignItems={"center"}
+              sx={{ gap: "10px"}}>
         <AlertContainer errors={errors} setErrors={setErrors}/>
         <form onSubmit={handleSubmit(handleWordGuessSubmit)}>
             <Controller
@@ -81,10 +82,10 @@ const GuessRow = props => {
                                 field.onChange(value);
                             }}
                             value={text}
-                            sx={{marginBottom: 2, marginTop: 2, fontSize: "3rem", fontWeight: "bold"}}
+                            sx={{gap: "5px", marginTop: "5px", marginBottom: "5px"}}
                             validateChar={validateChar}
                             TextFieldsProps={{
-                                disabled: disableInput || errors.length,
+                                disabled: !!(disableInput || errors.length),
                                 fontWeight: "bold",
                                 fontSize: "80px",
                                 sx: {fontSize: "xx-large", fontWeight: "bold"}
@@ -93,10 +94,19 @@ const GuessRow = props => {
                     </Box>
                 )}
             />
-            <Button type="submit" variant="contained" sx={{display: "none"}}>
-                Submit
-            </Button>
+            {
+                disableInput ?
+                    <Button type="submit" variant="contained" sx={{display: "none"}}>
+                        Submit
+                    </Button>
+                    :
+                    <Button type="submit" ref={submitRef} variant="contained" sx={{display: "none"}}>
+                        Submit Ref
+                    </Button>
+            }
+
         </form>
+        </Grid>
     </>
 
 }

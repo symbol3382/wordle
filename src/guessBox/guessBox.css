@@ -5,10 +5,6 @@
     background: orange;
 }
 
-.MuiOtpInput-TextField-1 {
-    /*background-color: green !important;*/
-}
-
 .MuiOtpInput-Box {
     justify-content: center;
 }
@@ -18,17 +14,12 @@
     height: 20px;
     border: none;
     padding: 15px !important;
+    font-size: 1.3rem;
+    font-weight: bold;
 }
 
 .charBox {
     width: 50px !important;
     height: 50px !important;
     border-radius: 5px;
-    /*display: flex;*/
-    /*margin: 10px !important;*/
-    /*text-align: center;*/
-    /*width: 50px !important;*/
-    /*height: 50px !important;*/
-    /*padding: 15px !important;*/
-    /*margin: 1px !important;*/
 }
