@@ -1,6 +1,18 @@
 import React, {useEffect, useRef, useState} from "react";
 import GuessRow from "./guessRow/guessRow";
-import {Alert, Card, CardActions, CardContent, Grid, Slide, Snackbar} from "@mui/material";
+import {
+    Alert,
+    Card,
+    CardActions,
+    CardContent,
+    FormControl,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Select,
+    Slide,
+    Snackbar
+} from "@mui/material";
 import './guessBox.css';
 import SubmittedRow from "./submittedRow/submittedRow";
 import moment from "moment";
@@ -116,6 +128,11 @@ const GuessBox = props => {
         }
     }
 
+    const onWordLengthSelect = (event) => {
+        reset();
+        setWordLength(event.target.value);
+    };
+
     return (
         <>
             <Snackbar
@@ -136,13 +153,32 @@ const GuessBox = props => {
                 submittedWords={submittedWords}
                 attemptsCount={attemptsCount}
             />
+            <Grid container alignItems={"center"} justifyContent={"end"} sx={{padding: "30px"}}>
+                <Grid item lg={2}>
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-simple-select-label">Word Length</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={wordLength}
+                            label="Word Length"
+                            onChange={onWordLengthSelect}
+                        >
+                            <MenuItem value={3}>3 Letters</MenuItem>
+                            <MenuItem value={4}>4 Letters</MenuItem>
+                            <MenuItem value={5}>5 Letters</MenuItem>
+                            <MenuItem value={6}>6 Letters</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Grid>
+            </Grid>
 
 
             <Grid
                 container
                 justifyContent={"center"}
                 alignItems={"center"}
-                sx={{height: "100vh"}}
+                sx={{height: "80vh"}}
             >
                 <Grid item>
                     <Button variant={"contained"} color={"success"} onClick={submitWordManually}

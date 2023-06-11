@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {MuiOtpInput} from "mui-one-time-password-input";
 import {Controller, useForm} from "react-hook-form";
 import {Box, Grid} from "@mui/material";
@@ -18,6 +18,12 @@ const GuessRow = props => {
             word: ""
         }
     });
+
+    useEffect(() => {
+        if(disableInput) {
+           setText("");
+        }
+    }, [disableInput])
 
     /**
      * -----------------------------------------------------------------------------------------------------------------
@@ -81,7 +87,7 @@ const GuessRow = props => {
                                 handleOnUserType(value);
                                 field.onChange(value);
                             }}
-                            value={text}
+                            value={disableInput ? "" : text}
                             sx={{gap: "5px", marginTop: "5px", marginBottom: "5px"}}
                             validateChar={validateChar}
                             TextFieldsProps={{
