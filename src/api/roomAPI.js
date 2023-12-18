@@ -10,20 +10,19 @@ const basePath = `${process.env.REACT_APP_API_PROTOCOL}${process.env.REACT_APP_A
  * @param word
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-const checkWord = (word, roomId) => {
-    let endpoint = `http://localhost:3500/guess`;
-    return axios.post(endpoint, {
-        word,
-        roomId
+ const checkIfRoomExists = (roomId) => {
+    return axios.post('http://localhost:3500/room/checkIfRoomExists', 
+    {
+      roomId: roomId
     }, {
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
+      headers: {
+          "Content-Type": "application/json"
+      }})
+  }
+
+
+const roomAPI = {
+    checkIfRoomExists: checkIfRoomExists,
 }
 
-const wordApi = {
-    checkWord: checkWord,
-}
-
-export default wordApi;
+export default roomAPI;

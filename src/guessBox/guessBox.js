@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import GuessRow from "./guessRow/guessRow";
+import { useNavigate } from "react-router-dom";
 import {
     Alert,
     Card,
@@ -20,7 +21,9 @@ import moment from "moment";
 import AskContinueOrReset from "./askContinueOrReset/askContinueOrReset";
 import wordService from "../services/wordService";
 import Button from "@mui/material/Button";
-
+import RoomDialog from "../components/alert/roomDialog";
+import webSocketService from "../services/socketService";
+import ChatBox from "../roomBox/chatBox";
 /**
  * ---------------------------------------------------------------------------------------------------------------------
  * @description To provide the sliding effect to alert component
@@ -39,11 +42,16 @@ const GuessBox = props => {
     let [attemptsCount, setAttemptsCount] = useState(5);
     let [currentGuessRowNumber, setCurrentGuessRowNumber] = useState(0);
     let [wordLength, setWordLength] = useState(5);
+    const [openDialog, setOpenDialog] = useState(false)
     const [submittedWords, setSubmittedWords] = useState([]);
     const [askContinueOrReset, setAskContinueOrReset] = useState(false);
     const [isWon, setIsWon] = useState(false);
     const [isOver, setIsOver] = useState(false);
     const submitRef = useRef();
+    const navigate = useNavigate()
+    const { userType } = props
+    const [disableInput, setDisableInput] = useState(false)
+    const [roomInput, setRoomInput] = useState('')
 
     useEffect(() => {
         let localStWords = localStorage.getItem('submittedWords');
@@ -62,7 +70,22 @@ const GuessBox = props => {
                 localStorage.removeItem('submittedWords');
             }
         }
-    }, [])
+
+        if(props.room) {
+            if(props.userType === 'admin') {
+                setDisableInput(false)
+            }
+            else{
+                setDisableInput(true)
+                    const messageListener = (message) => {
+                        setCurrentGuessRowNumber(message.key)
+                        setRoomInput(message.input);
+                    };
+                    webSocketService.addMessageListener(messageListener);
+            }
+        }
+
+    }, [props, wordLength])
 
     useEffect(() => {
         if (wordService.checkWin(submittedWords)) {
@@ -97,6 +120,7 @@ const GuessBox = props => {
         } else if (newSubmits.length === attemptsCount) {
             setIsOver(true);
         }
+        props.room && setRoomInput('')
     }
 
 
@@ -139,6 +163,35 @@ const GuessBox = props => {
         setWordLength(event.target.value);
     };
 
+    const createRoom = () => {
+        setOpenDialog(true)
+    }
+
+    const onCancel = () => {
+        setOpenDialog(false)
+    }
+
+
+    const handleToClose = (data) => {
+        setOpenDialog(false);
+        const id = makeid(8)
+        localStorage.setItem('roomid', id)
+        navigate(`/${id}`, {state: {type: 'admin'}})
+    
+    };
+
+    function makeid(length) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        let counter = 0;
+        while (counter < length) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength));
+          counter += 1;
+        }
+        return result;
+    }
+
     return (
         <>
             <Snackbar
@@ -178,8 +231,7 @@ const GuessBox = props => {
                     </FormControl>
                 </Grid>
             </Grid>
-
-
+            <div style={{display: 'flex'}}>
             <Grid
                 container
                 justifyContent={"center"}
@@ -211,10 +263,13 @@ const GuessBox = props => {
                                         <div>
                                             <GuessRow
                                                 key={guessRowNumber}
-                                                disableInput={isWon || guessRowNumber !== currentGuessRowNumber}
+                                                disableInput={disableInput || isWon || guessRowNumber !== currentGuessRowNumber}
                                                 submitGuess={(value) => onSubmitGuess(guessRowNumber, value)}
                                                 wordLength={wordLength}
                                                 submitRef={submitRef}
+                                                value={guessRowNumber === currentGuessRowNumber && props.room && disableInput ? roomInput : false}
+                                                row={currentGuessRowNumber}
+                                                guessRowNumber={guessRowNumber}
                                             ></GuessRow>
                                         </div>
 
@@ -236,6 +291,18 @@ const GuessBox = props => {
                         </CardActions>}
                     </Card>
                 </Grid>
+            </Grid>
+            {userType && <Grid container alignItems={"center"} justifyContent={"end"} sx={{padding: "20px"}} marginBottom={"10px"} width={'20%'}>
+                <ChatBox/>
+            </Grid>}
+            </div>
+
+            {!props.room && <Button onClick={createRoom} justifyContent={"end"} variant="outlined">Create Room</Button>  }
+            {openDialog && <RoomDialog onClose={handleToClose} onCancel={onCancel} userType='admin' />}
+
+
+            <Grid float='right'>
+                
             </Grid>
         </>
     )

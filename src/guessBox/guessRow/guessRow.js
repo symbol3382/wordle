@@ -7,11 +7,16 @@ import './guessRow.module.css';
 import wordApi from "../../api/wordApi";
 import AlertContainer from "../../components/alert/alert";
 import errorHandlingService from "../../services/errorHandlingService";
+import webSocketService from "../../services/socketService";
+import { useParams } from "react-router-dom";
+
 
 const GuessRow = props => {
-    const {disableInput, wordLength, submitRef} = props;
+    const {row, disableInput, wordLength, submitRef, value, guessRowNumber} = props;
     const [text, setText] = useState('');
     const [errors, setErrors] = useState([]);
+    const [roomId, setRoomId] = useState('')
+    const params = useParams()
 
     const {control, handleSubmit} = useForm({
         defaultValues: {
@@ -20,10 +25,33 @@ const GuessRow = props => {
     });
 
     useEffect(() => {
-        if(disableInput) {
+
+        if(params.id){
+            setRoomId(params.id)
+        }
+
+        
+        if(value && guessRowNumber === row) {
+            let updatedValu = value.toUpperCase()
+            setText(updatedValu)
+        }
+
+        if(disableInput && !value) {
            setText("");
         }
-    }, [disableInput])
+
+       if(roomId){
+            const responseListener = (response) => {
+                if(disableInput && guessRowNumber === row ){
+                    props.submitGuess(response.data)
+                }
+            }
+            // Add the responseListener only once when the component mounts
+            webSocketService.addResponseListener(responseListener);
+        }
+
+
+    }, [disableInput, value, params])
 
     /**
      * -----------------------------------------------------------------------------------------------------------------
@@ -34,6 +62,9 @@ const GuessRow = props => {
      */
     const handleOnUserType = (value) => {
         setText(value.toUpperCase());
+        if(!disableInput && roomId){
+            webSocketService.sendMessage({input: value, key: row})
+        }
     }
 
     /**
@@ -60,7 +91,7 @@ const GuessRow = props => {
      * @param values
      */
     const handleWordGuessSubmit = (values) => {
-        wordApi.checkWord(values.word.toUpperCase()).then(response => {
+        wordApi.checkWord(values.word.toUpperCase(), roomId).then(response => {
             props.submitGuess(response.data.data);
         }).catch(e => {
             if (e.response.data.messages) {
@@ -87,7 +118,7 @@ const GuessRow = props => {
                                 handleOnUserType(value);
                                 field.onChange(value);
                             }}
-                            value={disableInput ? "" : text}
+                            value={text}
                             sx={{gap: "5px", marginTop: "5px", marginBottom: "5px"}}
                             validateChar={validateChar}
                             TextFieldsProps={{
