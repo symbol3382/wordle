@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from "react";
-import {MuiOtpInput} from "mui-one-time-password-input";
-import {Controller, useForm} from "react-hook-form";
-import {Box, Grid} from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { MuiOtpInput } from "mui-one-time-password-input";
+import { Controller, useForm } from "react-hook-form";
+import { Box, Grid } from "@mui/material";
 import Button from "@mui/material/Button";
 import './guessRow.module.css';
 import wordApi from "../../api/wordApi";
@@ -9,19 +9,19 @@ import AlertContainer from "../../components/alert/alert";
 import errorHandlingService from "../../services/errorHandlingService";
 
 const GuessRow = props => {
-    const {disableInput, wordLength, submitRef} = props;
+    const { disableInput, wordLength, submitRef } = props;
     const [text, setText] = useState('');
     const [errors, setErrors] = useState([]);
 
-    const {control, handleSubmit} = useForm({
+    const { control, handleSubmit } = useForm({
         defaultValues: {
             word: ""
         }
     });
 
     useEffect(() => {
-        if(disableInput) {
-           setText("");
+        if (disableInput) {
+            setText("");
         }
     }, [disableInput])
 
@@ -69,16 +69,15 @@ const GuessRow = props => {
         });
     }
 
-    return <>
-        <Grid container justifyContent={"space-between"} alignItems={"center"}
-              sx={{ gap: "10px"}}>
-        <AlertContainer errors={errors} setErrors={setErrors}/>
+    return <Grid container justifyContent={"space-between"} alignItems={"center"}
+        sx={{ gap: "10px" }}>
+        <AlertContainer errors={errors} setErrors={setErrors} />
         <form onSubmit={handleSubmit(handleWordGuessSubmit)}>
             <Controller
                 name="word"
                 control={control}
-                rules={{validate: (value) => value.length === props.wordLength}}
-                render={({field, fieldState}) => (
+                rules={{ validate: (value) => value.length === props.wordLength }}
+                render={({ field }) => (
                     <Box>
                         <MuiOtpInput
                             length={wordLength}
@@ -87,14 +86,18 @@ const GuessRow = props => {
                                 handleOnUserType(value);
                                 field.onChange(value);
                             }}
+                            autoFocus={true}
+                            onFocus={(e)=> {
+                                console.log('e clicked', e.target)
+                            }}
                             value={disableInput ? "" : text}
-                            sx={{gap: "5px", marginTop: "5px", marginBottom: "5px"}}
+                            sx={{ gap: "5px", marginTop: "5px", marginBottom: "5px" }}
                             validateChar={validateChar}
                             TextFieldsProps={{
                                 disabled: !!(disableInput || errors.length),
                                 fontWeight: "bold",
                                 fontSize: "80px",
-                                sx: {fontSize: "xx-large", fontWeight: "bold"}
+                                sx: { fontSize: "xx-large", fontWeight: "bold", caretHidden: true }
                             }}
                         />
                     </Box>
@@ -102,19 +105,17 @@ const GuessRow = props => {
             />
             {
                 disableInput ?
-                    <Button type="submit" variant="contained" sx={{display: "none"}}>
+                    <Button type="submit" variant="contained" sx={{ display: "none" }}>
                         Submit
                     </Button>
                     :
-                    <Button type="submit" ref={submitRef} variant="contained" sx={{display: "none"}}>
+                    <Button type="submit" ref={submitRef} variant="contained" sx={{ display: "none" }}>
                         Submit Ref
                     </Button>
             }
 
         </form>
-        </Grid>
-    </>
-
+    </Grid>
 }
 
 export default GuessRow;

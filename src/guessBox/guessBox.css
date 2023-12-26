@@ -18,6 +18,33 @@
     font-weight: bold;
 }
 
+.Mui-focused  > fieldset {
+    background: #515A5A11;
+} 
+
+.Mui-focused  > input {
+    background: #515A5A77;
+}
+
+.Mui-focused  > fieldset,
+.Mui-focused:hover  > fieldset, 
+.MuiOtpInput-TextField > div > fieldset,
+.MuiOtpInput-TextField > div:hover fieldset 
+{
+    border: 3px solid #515A5A !important;
+    caret-color: transparent;
+}
+
+.MuiOtpInput-TextField > div > input {
+    caret-color: transparent;
+}
+
+.MuiOtpInput-TextField > div input::selection {
+    background: none;
+}
+
+
+
 .charBox {
     width: 50px !important;
     height: 50px !important;

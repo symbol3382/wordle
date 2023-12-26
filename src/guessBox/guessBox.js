@@ -189,7 +189,7 @@ const GuessBox = props => {
                 <Grid item>
                     <Button variant={"contained"} color={"success"} onClick={submitWordManually}
                             sx={{width: "100%", display: {xs: 'flex', sm: 'none'}}} disabled={isOver}> Submit </Button>
-                    <Card>
+                    <Card style={{background: "#121212"}}>
                         <CardContent sx={{padding: "20px !important"}}>
                             {Array.from(Array(attemptsCount).keys()).map(guessRowNumber => {
                                 return <>
