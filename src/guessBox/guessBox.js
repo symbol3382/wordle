@@ -1,7 +1,8 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import GuessRow from "./guessRow/guessRow";
 import {
     Alert,
+    ButtonGroup,
     Card,
     CardActions,
     CardContent,
@@ -20,6 +21,10 @@ import moment from "moment";
 import AskContinueOrReset from "./askContinueOrReset/askContinueOrReset";
 import wordService from "../services/wordService";
 import Button from "@mui/material/Button";
+import Keyboard from "./keyboard/keyboard";
+import { connect } from "react-redux";
+import { setAttemptCount, setCurrentRow, setKeyWords, setSubmittedWords, setWordLength } from "../redux/actions/appActions";
+import BoardResetButton from "./boardResetButton";
 
 /**
  * ---------------------------------------------------------------------------------------------------------------------
@@ -31,19 +36,30 @@ import Button from "@mui/material/Button";
  * @constructor
  */
 function SlideTransition(props) {
-    return <Slide {...props} direction="up"/>;
+    return <Slide {...props} direction="up" />;
 }
 
-const GuessBox = props => {
+let GuessBox = props => {
 
-    let [attemptsCount, setAttemptsCount] = useState(5);
-    let [currentGuessRowNumber, setCurrentGuessRowNumber] = useState(0);
-    let [wordLength, setWordLength] = useState(5);
-    const [submittedWords, setSubmittedWords] = useState([]);
+    const {
+        attemptsCount, setAttemptCount,
+        currentRow, setCurrentRow,
+        wordLength, setWordLength,
+        submittedWords, setSubmittedWords,
+        keyWords, setKeyWords,
+    } = props;
+
+    let keyData = keyWords[wordLength] || {};
+
+    const minAttempts = 6;
+
     const [askContinueOrReset, setAskContinueOrReset] = useState(false);
     const [isWon, setIsWon] = useState(false);
     const [isOver, setIsOver] = useState(false);
     const submitRef = useRef();
+    const [] = useState([]);
+
+    console.log('state', props.state);
 
     useEffect(() => {
         let localStWords = localStorage.getItem('submittedWords');
@@ -52,27 +68,85 @@ const GuessBox = props => {
             if (localStWords.submittedWords && localStWords.date === moment().format('L')) {
                 if (localStWords.submittedWords.length && localStWords.submittedWords[0].word.length === wordLength) {
                     setSubmittedWords(localStWords.submittedWords);
-                    setCurrentGuessRowNumber(localStWords.submittedWords.length)
-                    setAskContinueOrReset(true);
+                    setCurrentRow(localStWords.submittedWords.length)
+                    if (localStWords.submittedWords.length === attemptsCount) {
+                        setIsOver(true);
+                        setAskContinueOrReset(true);
+                    }
                 } else {
-                    alert(`word length not same ${wordLength} ${localStWords.submittedWords[0].word}`)
-
+                    console.error(`word length not same ${wordLength} ${localStWords.submittedWords[0].word}`)
                 }
             } else {
                 localStorage.removeItem('submittedWords');
             }
         }
+        updateKeyStatusFromLocal()
     }, [])
 
     useEffect(() => {
         if (wordService.checkWin(submittedWords)) {
             // after winning user should not be able to input in any box
-            setCurrentGuessRowNumber(-1);
+            setCurrentRow(-1);
             setIsWon(true);
         } else {
-            setCurrentGuessRowNumber(submittedWords.length);
+            setCurrentRow(submittedWords.length);
         }
+        submittedWords.forEach(submitWord => {
+            parseKeyboard(submitWord);
+        })
     }, [submittedWords])
+
+    useEffect(() => {
+        setAttemptCount(wordLength < minAttempts ? minAttempts : wordLength + 1)
+    }, [wordLength]);
+
+    const parseKeyboard = (submitWord) => {
+        let newKeyData = { ...keyData };
+        submitWord.word.split('').forEach((char, index) => {
+            if (newKeyData[char] === 1) {
+                return;
+            }
+            if (submitWord.result[index] === 1) {
+                newKeyData[char] = 1;
+            } else if (submitWord.result[index] === -1) {
+                newKeyData[char] = -1;
+            }
+        })
+        setKeyWords({
+            ...keyWords,
+            [wordLength]: newKeyData,
+        });
+        syncKeyStatusFromLocal(newKeyData);
+    }
+
+    const syncKeyStatusFromLocal = newKeyData => {
+        let localKeyData = localStorage.getItem('keyStatus') || '{}';
+        localKeyData = JSON.parse(localKeyData);
+        localKeyData[moment().format('YYYY-MM-DD')] = localKeyData[moment().format('YYYY-MM-DD')] || {}
+        localKeyData[moment().format('YYYY-MM-DD')][wordLength] = newKeyData;
+        console.log('updating local with', localKeyData);
+        localStorage.setItem('keyStatus', JSON.stringify(localKeyData));
+    }
+
+    const updateKeyStatusFromLocal = () => {
+        let localKeyData = localStorage.getItem('keyStatus');
+        if (!localKeyData) {
+            return;
+        }
+
+        localKeyData = JSON.parse(localKeyData);
+        if (localKeyData[moment().format('YYYY-MM-DD')]) {
+            setKeyWords({
+                ...keyWords,
+                [wordLength]: localKeyData[moment().format('YYYY-MM-DD')][wordLength],
+            })
+        }
+    }
+
+    const resetKeyboard = () => {
+        localStorage.removeItem('keyStatus');
+        setKeyWords({})
+    }
 
     /**
      * -----------------------------------------------------------------------------------------------------------------
@@ -84,13 +158,14 @@ const GuessBox = props => {
      * @param value
      */
     const onSubmitGuess = (index, value) => {
+        console.log('submite', index, value);
         let newSubmits = [...submittedWords];
         newSubmits[index] = value;
         setSubmittedWords(newSubmits);
         localStorage.setItem('submittedWords', JSON.stringify({
-                date: moment().format('L'),
-                submittedWords: newSubmits,
-            })
+            date: moment().format('L'),
+            submittedWords: newSubmits,
+        })
         )
         if (value.match) {
             setIsWon(true);
@@ -136,30 +211,26 @@ const GuessBox = props => {
 
     const onWordLengthSelect = (event) => {
         reset();
+        resetKeyboard();
+        console.log('new word length', event.target.value);
+        localStorage.setItem('wordLength', event.target.value);
         setWordLength(event.target.value);
     };
 
     return (
-        <>
+        <Grid container>
             <Snackbar
                 open={isWon || isOver}
-                anchorOrigin={{vertical: "top", horizontal: "center"}}
+                anchorOrigin={{ vertical: "top", horizontal: "center" }}
                 autoHideDuration={1500}
                 TransitionComponent={SlideTransition}
             >
-                <Alert severity={isWon ? 'success' : 'warning'} sx={{width: '100%'}}>
+                <Alert severity={isWon ? 'success' : 'warning'} sx={{ width: '100%' }}>
                     {isWon ? `Congratulations! You've Won` : `You ran out of moves now`}
                 </Alert>
             </Snackbar>
 
-
-            <AskContinueOrReset
-                ask={askContinueOrReset}
-                onClose={handleAskSubmit}
-                submittedWords={submittedWords}
-                attemptsCount={attemptsCount}
-            />
-            <Grid container alignItems={"center"} justifyContent={"end"} sx={{padding: "30px"}}>
+            <Grid container alignItems={"center"} justifyContent={"end"} sx={{ padding: "30px" }}>
                 <Grid item lg={2}>
                     <FormControl fullWidth>
                         <InputLabel id="demo-simple-select-label">Word Length</InputLabel>
@@ -178,40 +249,37 @@ const GuessBox = props => {
                     </FormControl>
                 </Grid>
             </Grid>
-
-
             <Grid
                 container
                 justifyContent={"center"}
                 alignItems={"center"}
-                sx={{height: "80vh"}}
             >
                 <Grid item>
                     <Button variant={"contained"} color={"success"} onClick={submitWordManually}
-                            sx={{width: "100%", display: {xs: 'flex', sm: 'none'}}} disabled={isOver}> Submit </Button>
-                    <Card style={{background: "#121212"}}>
-                        <CardContent sx={{padding: "20px !important"}}>
+                        sx={{ width: "100%", display: { xs: 'flex', sm: 'none' } }} disabled={isOver}> Submit </Button>
+                    <Card style={{ background: "#121212" }}>
+                        <CardContent sx={{ padding: "20px !important" }}>
                             {Array.from(Array(attemptsCount).keys()).map(guessRowNumber => {
                                 return <>
                                     <Zoom in={submittedWords[guessRowNumber]}
-                                          className={submittedWords[guessRowNumber] ? "" : 'hidden'}
+                                        className={submittedWords[guessRowNumber] ? "" : 'hidden'}
 
-                                        // orientation="vertical"
-                                        // sx={{display: submittedWords[guessRowNumber] ? "block" : "none"}}
+                                    // orientation="vertical"
+                                    // sx={{display: submittedWords[guessRowNumber] ? "block" : "none"}}
                                     >
                                         <div>
                                             <SubmittedRow submittedWords={submittedWords[guessRowNumber]}
-                                                          key={Math.random()}></SubmittedRow>
+                                                key={Math.random()}></SubmittedRow>
                                         </div>
 
                                     </Zoom>
                                     <Zoom in={!submittedWords[guessRowNumber]}
-                                          className={!submittedWords[guessRowNumber] ? "" : 'hidden'}
+                                        className={!submittedWords[guessRowNumber] ? "" : 'hidden'}
                                     >
                                         <div>
                                             <GuessRow
                                                 key={guessRowNumber}
-                                                disableInput={isWon || guessRowNumber !== currentGuessRowNumber}
+                                                disableInput={isWon || guessRowNumber !== currentRow}
                                                 submitGuess={(value) => onSubmitGuess(guessRowNumber, value)}
                                                 wordLength={wordLength}
                                                 submitRef={submitRef}
@@ -222,23 +290,48 @@ const GuessBox = props => {
                                 </>
                             })}
                         </CardContent>
-                        {(isWon || isOver) && <CardActions>
-                            <Grid container justifyContent={"center"} alignItems={"center"}>
-                                <Grid item lg={12} md={12} sm={12} xs={12}>
-                                    <Button variant={"contained"}
-                                            onClick={reset}
-                                            sx={{width: '100%'}}
-                                            color={"success"}>
-                                        Reset
-                                    </Button>
-                                </Grid>
-                            </Grid>
-                        </CardActions>}
+
                     </Card>
                 </Grid>
             </Grid>
-        </>
+            {
+                (isWon || isOver) && <Grid container sx={{ mb: 3 }} justifyContent={"center"} alignItems={"center"}>
+                    <Grid item lg={12} md={12} sm={12} xs={12} container justifyContent={"center"}>
+                        <BoardResetButton
+                            reset={reset}
+                            resetKeyboard={resetKeyboard}
+                            color={"success"}
+                            isWon={isWon}
+                        />
+                    </Grid>
+                </Grid>
+
+            }
+            <Grid container justifyContent={"center"}>
+                <Keyboard keyData={keyData} />
+            </Grid>
+        </Grid>
     )
 }
+
+const mapStateToProps = state => ({
+    attemptsCount: state.appReducer.game.attemptsCount,
+    currentRow: state.appReducer.game.guess.currentRow,
+    wordLength: state.appReducer.game.guess.wordLength,
+    submittedWords: state.appReducer.game.submittedWords,
+    keyWords: state.appReducer.game.keyboard.keyStatus,
+    state: state,
+})
+
+const mapDispatchToProps = {
+    setCurrentRow: setCurrentRow,
+    setWordLength: setWordLength,
+    setSubmittedWords: setSubmittedWords,
+    setKeyWords: setKeyWords,
+    setAttemptCount: setAttemptCount,
+}
+
+GuessBox = connect(mapStateToProps, mapDispatchToProps)(GuessBox);
+
 
 export default GuessBox;

@@ -1,0 +1,13 @@
+const APP = {
+    SET_CURRENT_ROW: "SET_CURRENT_ROW",
+    SET_WORD_LENGTH: "SET_WORD_LENGTH",
+    SET_SUBMITTED_WORDS: "SET_SUBMITTED_WORDS",
+    SET_KEY_STATUS: "SET_KEY_STATUS",
+    SET_ATTEMPT_COUNT: "SET_ATTEMPT_COUNT",
+}
+
+let actionTypes = {
+    APP
+}
+
+export default actionTypes;
