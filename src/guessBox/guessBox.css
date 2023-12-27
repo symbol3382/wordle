@@ -76,3 +76,8 @@
 .charSpan-yellowBG {
     background: #B7950B;
 }
+
+.charSpan-null{
+    background: #1D1D1D;
+    color: #6A6A6A;
+}

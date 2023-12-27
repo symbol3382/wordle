@@ -110,6 +110,8 @@ let GuessBox = props => {
                 newKeyData[char] = 1;
             } else if (submitWord.result[index] === -1) {
                 newKeyData[char] = -1;
+            } else {
+                newKeyData[char] = 0;
             }
         })
         setKeyWords({
