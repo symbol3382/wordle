@@ -51,7 +51,7 @@ let GuessBox = props => {
 
     let keyData = keyWords[wordLength] || {};
 
-    const minAttempts = 6;
+    const maxAttempts = 6;
 
     const [askContinueOrReset, setAskContinueOrReset] = useState(false);
     const [isWon, setIsWon] = useState(false);
@@ -97,7 +97,7 @@ let GuessBox = props => {
     }, [submittedWords])
 
     useEffect(() => {
-        setAttemptCount(wordLength < minAttempts ? minAttempts : wordLength + 1)
+        setAttemptCount(wordLength + 1 > maxAttempts ? maxAttempts : wordLength + 1)
     }, [wordLength]);
 
     const parseKeyboard = (submitWord) => {
@@ -247,6 +247,7 @@ let GuessBox = props => {
                             <MenuItem value={4}>4 Letters</MenuItem>
                             <MenuItem value={5}>5 Letters</MenuItem>
                             <MenuItem value={6}>6 Letters</MenuItem>
+                            <MenuItem value={7}>7 Letters</MenuItem>
                         </Select>
                     </FormControl>
                 </Grid>

@@ -2,7 +2,7 @@ import actionTypes from "../types";
 
 let initialState = {
     game: {
-        attemptsCount: 6,
+        attemptsCount: 4,
         guess: {
             currentRow: 0,
             wordLength: Number.parseInt(localStorage.getItem('wordLength') || 5),
