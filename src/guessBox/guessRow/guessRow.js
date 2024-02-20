@@ -63,8 +63,11 @@ const GuessRow = props => {
         wordApi.checkWord(values.word.toUpperCase()).then(response => {
             props.submitGuess(response.data.data);
         }).catch(e => {
-            if (e.response.data.messages) {
+            console.error('Error in checking word', e);
+            if (e?.response?.data?.message) {
                 setErrors(errorHandlingService.mapErrorsFromResponse(e.response));
+            } else if(e?.message) {
+                setErrors([e.message]);
             }
         });
     }

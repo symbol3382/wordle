@@ -2,9 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import GuessRow from "./guessRow/guessRow";
 import {
     Alert,
-    ButtonGroup,
     Card,
-    CardActions,
     CardContent,
     FormControl,
     Grid,
@@ -18,7 +16,6 @@ import {
 import './guessBox.css';
 import SubmittedRow from "./submittedRow/submittedRow";
 import moment from "moment";
-import AskContinueOrReset from "./askContinueOrReset/askContinueOrReset";
 import wordService from "../services/wordService";
 import Button from "@mui/material/Button";
 import Keyboard from "./keyboard/keyboard";
@@ -50,16 +47,10 @@ let GuessBox = props => {
     } = props;
 
     let keyData = keyWords[wordLength] || {};
-
     const maxAttempts = 6;
-
-    const [askContinueOrReset, setAskContinueOrReset] = useState(false);
     const [isWon, setIsWon] = useState(false);
     const [isOver, setIsOver] = useState(false);
     const submitRef = useRef();
-    const [] = useState([]);
-
-    console.log('state', props.state);
 
     useEffect(() => {
         let localStWords = localStorage.getItem('submittedWords');
@@ -71,7 +62,6 @@ let GuessBox = props => {
                     setCurrentRow(localStWords.submittedWords.length)
                     if (localStWords.submittedWords.length === attemptsCount) {
                         setIsOver(true);
-                        setAskContinueOrReset(true);
                     }
                 } else {
                     console.error(`word length not same ${wordLength} ${localStWords.submittedWords[0].word}`)
@@ -174,22 +164,6 @@ let GuessBox = props => {
         } else if (newSubmits.length === attemptsCount) {
             setIsOver(true);
         }
-    }
-
-
-    /**
-     * -----------------------------------------------------------------------------------------------------------------
-     * @description To handle the input when user click on the dialog box when user resume the game and a dialog appear
-     * if user has chosen the reset option it will remove the submitted words
-     * -----------------------------------------------------------------------------------------------------------------
-     *
-     * @param options
-     */
-    const handleAskSubmit = (options) => {
-        if (options.reset) {
-            reset();
-        }
-        setAskContinueOrReset(false);
     }
 
     /**

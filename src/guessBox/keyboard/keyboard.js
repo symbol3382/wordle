@@ -1,4 +1,4 @@
-import { Button, Grid } from "@mui/material";
+import { Grid } from "@mui/material";
 
 const Key = ({ char, keyValue }) => {
     let classes = {
@@ -16,7 +16,6 @@ const Keyboard = ({keyData}) => {
         'ASDFGHJKL',
         'ZXCVBNM',
     ];
-
 
     return rows.map(row => {
         return <Grid item container key={`${row}-charRow`} justifyContent={"center"}>

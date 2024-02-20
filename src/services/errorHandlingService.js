@@ -15,6 +15,8 @@ const mapErrorsFromResponse = (response) => {
         Object.values(response.data.messages).forEach(errors => {
             newErrors = [...newErrors, ...errors]
         })
+    } else if (response.data.message) {
+        newErrors.push(response.data.message);
     }
     return newErrors;
 }
