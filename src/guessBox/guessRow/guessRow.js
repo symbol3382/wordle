@@ -90,9 +90,7 @@ const GuessRow = props => {
                                 field.onChange(value);
                             }}
                             autoFocus={true}
-                            onFocus={(e)=> {
-                                console.log('e clicked', e.target)
-                            }}
+                            onFocus={(e)=> {}}
                             value={disableInput ? "" : text}
                             sx={{ gap: "5px", marginTop: "5px", marginBottom: "5px" }}
                             validateChar={validateChar}

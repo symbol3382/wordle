@@ -116,7 +116,6 @@ let GuessBox = props => {
         localKeyData = JSON.parse(localKeyData);
         localKeyData[moment().format('YYYY-MM-DD')] = localKeyData[moment().format('YYYY-MM-DD')] || {}
         localKeyData[moment().format('YYYY-MM-DD')][wordLength] = newKeyData;
-        console.log('updating local with', localKeyData);
         localStorage.setItem('keyStatus', JSON.stringify(localKeyData));
     }
 
@@ -150,7 +149,6 @@ let GuessBox = props => {
      * @param value
      */
     const onSubmitGuess = (index, value) => {
-        console.log('submite', index, value);
         let newSubmits = [...submittedWords];
         newSubmits[index] = value;
         setSubmittedWords(newSubmits);
@@ -179,7 +177,6 @@ let GuessBox = props => {
     }
 
     const submitWordManually = () => {
-        console.log('dddddd submitting', submitRef.current);
         if (submitRef.current) {
             submitRef.current.click();
         }
@@ -188,7 +185,6 @@ let GuessBox = props => {
     const onWordLengthSelect = (event) => {
         reset();
         resetKeyboard();
-        console.log('new word length', event.target.value);
         localStorage.setItem('wordLength', event.target.value);
         setWordLength(event.target.value);
     };
@@ -217,7 +213,6 @@ let GuessBox = props => {
                             label="Word Length"
                             onChange={onWordLengthSelect}
                         >
-                            <MenuItem value={3}>3 Letters</MenuItem>
                             <MenuItem value={4}>4 Letters</MenuItem>
                             <MenuItem value={5}>5 Letters</MenuItem>
                             <MenuItem value={6}>6 Letters</MenuItem>

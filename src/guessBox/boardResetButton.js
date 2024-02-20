@@ -22,7 +22,6 @@ let BoardResetButton = (props) => {
     const [selectedIndex, setSelectedIndex] = React.useState(props.isWon ? 2 : 0);
 
     const handleClick = () => {
-        console.info(`You clicked ${options[selectedIndex]}`);
         if (selectedIndex === 0) {
             props.reset();
         } else if (selectedIndex === 1) {

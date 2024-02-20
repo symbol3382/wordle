@@ -74,7 +74,6 @@ let appReducer = (state = initialState, action) => {
             }
             break;
         default:
-            console.log("Unhandled Action triggered", action.type);
             return state;
     }
     return state;
