@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import adminApi from "../api/adminApi";
 import errorHandlingService from "../services/errorHandlingService";
+import _ from 'lodash';
+import SyncWord from "./syncWord";
 
 const AdminPanel = () => {
     const [errors, setErrors] = useState([]);
@@ -9,17 +11,17 @@ const AdminPanel = () => {
     const [guessCount, setGuessCount] = useState({});
 
     useEffect(() => {
-        totalGuessCount = 0;
+        let totalGuessCountNew = 0;
         for(let key in guessCount) {
-            totalGuessCount += guessCount[key].guessCount || 
+            totalGuessCountNew += (guessCount[key].guessCount || 0)
         }
+        setTotalGuessCount(totalGuessCountNew)
     }, [guessCount]);
-
 
     useEffect(() => {
         adminApi.getGameStatistics()
             .then((res) => {
-                console.log(res.data)
+                setGuessCount(res.data.today_words);
             })
             .catch(e => {
                 console.error('Error in checking word', e);
@@ -31,7 +33,12 @@ const AdminPanel = () => {
             })
     }, []);
 
+    if(_.isEmpty(guessCount)) {
+        return <SyncWord/>
+    }
+
     return <>
+        {JSON.stringify({totalGuessCount, guessCount})}
     </>
 }
 

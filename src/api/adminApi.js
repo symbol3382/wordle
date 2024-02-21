@@ -10,13 +10,20 @@ const basePath = `${process.env.REACT_APP_API_PROTOCOL}${process.env.REACT_APP_A
  * @param word
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-const getGameStatistics = (word) => {
+const getGameStatistics = () => {
     let endpoint = `${basePath}/admin/statistics`;
     return axios.get(endpoint, {
-        word,
-    }, {
         headers: {
             "Content-Type": "application/json"
+        }
+    })
+}
+
+const syncWords = () => {
+    let endpoint = `${basePath}/admin/sync-word`
+    return axios.post(endpoint, {}, {
+        headers: {
+            "Content-type": "application/json",
         }
     })
 }
