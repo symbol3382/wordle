@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import {createTheme, CssBaseline, ThemeProvider} from "@mui/material";
 import store from './redux/store';
 import { Provider } from 'react-redux';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 
 const darkMode = createTheme({
@@ -20,7 +21,7 @@ root.render(
         <ThemeProvider theme={darkMode}>
             <CssBaseline/>
             <Provider store={store}>
-                <App/>
+               <App/>
             </Provider>
         </ThemeProvider>
     </React.StrictMode>

@@ -1,8 +1,22 @@
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import './App.css';
 import GuessBox from "./guessBox/guessBox";
+import AdminPanel from './adminPanel/adminPanel';
+
+
+const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <GuessBox/>,
+    },
+    {
+        path: "/admin",
+        element: <AdminPanel/>,
+    }
+  ]);
 
 function App() {
-    return (<GuessBox/>)
+    return <RouterProvider basename="/wordle" router={router}/>
 }
 
 export default App;
