@@ -1,7 +1,7 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import './App.css';
 import GuessBox from "./guessBox/guessBox";
-import AdminPanel from './adminPanel/adminPanel';
+import AdminPanel from './adminPanel';
 
 
 const router = createBrowserRouter([

@@ -3,6 +3,7 @@ import adminApi from "../api/adminApi";
 import errorHandlingService from "../services/errorHandlingService";
 import _ from 'lodash';
 import SyncWord from "./syncWord";
+import GameStatistics from "./gameStatistics";
 
 const AdminPanel = () => {
     const [errors, setErrors] = useState([]);
@@ -38,7 +39,7 @@ const AdminPanel = () => {
     }
 
     return <>
-        {JSON.stringify({totalGuessCount, guessCount})}
+        <GameStatistics guesses={guessCount}/>
     </>
 }
 

@@ -30,6 +30,7 @@ const syncWords = () => {
 
 const adminApi = {
     getGameStatistics: getGameStatistics,
+    syncWords: syncWords,
 }
 
 export default adminApi;
