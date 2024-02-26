@@ -68,7 +68,7 @@ const GameStatistics = ({ guesses }) => {
                                                         Show Word
                                                     </Typography>
                                                 </Grid>
-                                                <Grid item sx={{ textAlign: "center" }}>
+                                                <Grid item sx={{ textAlign: "center", mt: 2 }}>
                                                     <IconButton onClick={toggleWordVisibility(guess.word_length)}>
                                                         <VisibilityIcon />
                                                     </IconButton>

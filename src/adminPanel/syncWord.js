@@ -14,7 +14,7 @@ const SyncWord = () => {
             });
     }
 
-    return <Grid containerwidth={"100%"} spacing={3}>
+    return <Grid container width={"100%"} height={"100%"} spacing={3}>
         <Grid item container justifyContent={"center"} >
         <Typography variant={"h4"}>No Word Found</Typography>
         </Grid>

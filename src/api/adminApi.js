@@ -10,8 +10,8 @@ const basePath = `${process.env.REACT_APP_API_PROTOCOL}${process.env.REACT_APP_A
  * @param word
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-const getGameStatistics = () => {
-    let endpoint = `${basePath}/admin/statistics`;
+const getGameStatistics = (date) => {
+    let endpoint = `${basePath}/admin/statistics?date=${date}`;
     return axios.get(endpoint, {
         headers: {
             "Content-Type": "application/json"
