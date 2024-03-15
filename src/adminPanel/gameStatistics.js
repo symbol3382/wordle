@@ -18,13 +18,13 @@ const GameStatistics = ({ guesses }) => {
 
     const toggleWordVisibility = (wordLength) => {
         return () => setWordVisible(wordVisible === wordLength ? null : wordLength);
-    }
+}
 
     return <Grid container spacing={2}>
         {
             guesses.map((guess) => {
                 return <Grid item lg={3} md={4} sm={6} xs={12}>
-                    <Card variant="outlined">
+                    <Card variant={"outlined"}>
                         <React.Fragment>
                             <CardContent>
                                 <Grid container>

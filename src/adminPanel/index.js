@@ -9,6 +9,7 @@ import { Grid, Paper } from "@mui/material";
 import moment from "moment";
 import Loader from "../components/loader/loader";
 import { useSearchParams } from "react-router-dom";
+import DateHandler from "./dateHandler";
 
 
 const AdminPanel = () => {
@@ -59,8 +60,9 @@ const AdminPanel = () => {
         setTotalGuessCount(totalGuessCountNew)
     }, [guessCount]);
 
-    
-
+    const handleSyncWords = () => {
+        updateStatistics(statisticsDate);
+    }
 
     if (loader) {
         return <Grid container
@@ -72,16 +74,13 @@ const AdminPanel = () => {
         </Grid>
     }
 
-    if (_.isEmpty(guessCount)) {
-        return <SyncWord />
-    }
-
-    return <>
-        <Paper elevation={4} sx={{ padding: 3 }}>
-            <DatePicker value={statisticsDate} onChange={updateStatistics} format={"DD-MM-YYYY"} />
-            <GameStatistics guesses={guessCount} />
+    return <Paper elevation={4} sx={{ padding: 3 }}>
+            <DateHandler statisticsDate={statisticsDate} updateStatistics={updateStatistics}/>            
+            { _.isEmpty(guessCount) ? 
+                <SyncWord statisticsDate={statisticsDate} onSync={handleSyncWords} /> : 
+                <GameStatistics guesses={guessCount} />
+            }
         </Paper>
-    </>
 }
 
 export default AdminPanel;
